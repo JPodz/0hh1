@@ -5,7 +5,8 @@ define(
     function (module) {
         module.controller('BoardController', [
             '$scope',
-            function defineBoardController($scope) {
+            'logicService',
+            function defineBoardController($scope, logicService) {
 
                 /**
                  * Size of the board. Defaults to 4x4.
@@ -23,7 +24,10 @@ define(
                  */
                 $scope.getCollectionOfSize = function (number) {
                     return new Array(number);
-                }
+                };
+
+                // Register the size of the board
+                logicService.setBoardSize($scope.size);
             }
         ]);
         return module.directive('hiBoard', [

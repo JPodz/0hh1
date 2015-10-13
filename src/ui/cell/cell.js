@@ -5,7 +5,8 @@ define(
     function (module) {
         module.controller('CellController', [
             '$scope',
-            function defineCellController($scope) {
+            'logicService',
+            function defineCellController($scope, logicService) {
 
                 var 
                     /**
@@ -14,11 +15,7 @@ define(
                      * @private
                      * @type    {Array}
                      */
-                    possibleStates = [
-                        'off',
-                        'oh',
-                        'hi'
-                    ],
+                    possibleStates = logicService.getPossibleCellStates(),
 
                     /**
                      * Returns whether or not the provided state is valid
@@ -42,13 +39,13 @@ define(
                 $scope.state = isValidState($scope.state) ? $scope.state : possibleStates[0];
 
                 /**
-                 * Cycles to the next iteration in the possible states
+                 * Cycles to the next iteration in the possible states and updates the board status in the logic service
                  */
                 $scope.changeState = function () {
                     var currentIndex = possibleStates.indexOf($scope.state),
                         nextIndex = (currentIndex === possibleStates.length - 1) ? 0 : currentIndex + 1;
                     $scope.state = possibleStates[nextIndex];
-                    console.log($scope.state);
+                    logicService.setCellState($scope.state, $scope.cellRow, $scope.cellIndex);
                 }
             }
         ]);
@@ -59,7 +56,9 @@ define(
                     templateUrl: 'ui/cell/cell.html',
                     controller: 'CellController',
                     scope: {
-                        state: "=?"
+                        state: '=?',
+                        cellRow: '@',
+                        cellIndex: '@'
                     }
                 }
             }

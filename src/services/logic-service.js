@@ -12,14 +12,16 @@ define(
                      * can look up the status of a row, cell, or complete board. The board is made up of a series of
                      * rows. Each row consists of a series of cells. Each cell has data attributed to it, most notably
                      * its state.
-                     * 
+                     *
+                     * @private
                      * @type {Array}
                      */
                     logicBoard = [],
 
                     /**
                      * Possible cell states
-                     * 
+                     *
+                     * @private
                      * @type {String[]}
                      */
                     possibleCellStates = [
@@ -30,33 +32,30 @@ define(
 
                     /**
                      * Returns an array of all incomplete row indexes in the logic board
-                     * 
+                     *
+                     * @private
                      * @return {Number[]}
                      */
                     getIncompleteRows = function () {
                         var incompleteRows = [];
 
-                        // Loop over all rows in the logic board
-                        for (var rowIndex = 0, length = logicBoard.length; rowIndex < length; rowIndex++) {
+                        iterateOverBoard(function (cell, rowIndex, cellIndex) {
 
-                            // Loop over all cells in the current iterated row
-                            for (var cellIndex = 0, length = logicBoard[rowIndex].length; cellIndex < length; cellIndex++) {
-
-                                // If the cell state if 'off' and the row hasn't already been added as incomplete, add
-                                // it to the list
-                                if (logicBoard[rowIndex][cellIndex].state === possibleCellStates[0]) {
-                                    if (incompleteRows.indexOf(rowIndex) === -1) {
-                                        incompleteRows.push(rowIndex);
-                                    }
+                            // If the cell state if 'off' and the row hasn't already been added as incomplete, add
+                            // it to the list
+                            if (logicBoard[rowIndex][cellIndex].state === possibleCellStates[0]) {
+                                if (incompleteRows.indexOf(rowIndex) === -1) {
+                                    incompleteRows.push(rowIndex);
                                 }
                             }
-                        }
+                        });
                         return incompleteRows;
                     },
 
                     /**
                      * Returns an array of all row indexes that contain an invalid number of equal blocks
-                     * 
+                     *
+                     * @private
                      * @return {Number[]}
                      */
                     getInvalidMatchingRows = function () {
@@ -64,7 +63,7 @@ define(
                             rowColors = {};
 
                         // Loop over all rows in the logic board
-                        for (var rowIndex = 0, length = logicBoard.length; rowIndex < length; rowIndex++) {
+                        iterateOverAllRows(function (rowIndex) {
 
                             // Reset the row color counts
                             for (var key in rowColors) {
@@ -74,14 +73,13 @@ define(
                             }
 
                             // Loop over all cells in the current iterated row and get a count of each of their states
-                            for (var cellIndex = 0, length = logicBoard[rowIndex].length; cellIndex < length; cellIndex++) {
-
+                            iterateOverAllCellsInRow(rowIndex, function (cell, cellIndex) {
                                 var state = logicBoard[rowIndex][cellIndex].state;
                                 if (!rowColors[state]) {
                                     rowColors[state] = 0;
                                 }
                                 rowColors[state]++;
-                            }
+                            });
 
                             // Loop over the row color counts again. If each of their numbers match, then it is assumed
                             // that they have at least the correct number of colors in each row. Note, we don't care
@@ -98,8 +96,56 @@ define(
                                     previousValue = rowColors[key];
                                 }
                             }
-                        }
+                        });
                         return invalidRows;
+                    },
+
+                    /**
+                     * Iterates over the entire board and calls the callback method with the iterative data
+                     *
+                     * @private
+                     * @param   {Function}      callback        Callback method
+                     */
+                    iterateOverBoard = function (callback) {
+                        if (typeof callback !== 'function') {
+                            return;
+                        }
+                        iterateOverAllRows(function (rowIndex) {
+                            iterateOverAllCellsInRow(rowIndex, function (cell, cellIndex) {
+                                callback(logicBoard[rowIndex][cellIndex], rowIndex, cellIndex);
+                            });
+                        });
+                    },
+
+                    /**
+                     * Iterates over all rows in a board
+                     *
+                     * @private
+                     * @param   {Function}      callback        Callback method
+                     */
+                    iterateOverAllRows = function (callback) {
+                        if (typeof callback !== 'function') {
+                            return;
+                        }
+                        for (var rowIndex = 0, length = logicBoard.length; rowIndex < length; rowIndex++) {
+                            callback(rowIndex);
+                        }
+                    },
+
+                    /**
+                     * Iterates over all cells in the provided row index
+                     *
+                     * @private
+                     * @param   {Number}        rowIndex        Row index to iterate over
+                     * @param   {Function}      callback        Callback method
+                     */
+                    iterateOverAllCellsInRow = function (rowIndex, callback) {
+                        if (typeof callback !== 'function') {
+                            return;
+                        }
+                        for (var cellIndex = 0, length = logicBoard[rowIndex].length; cellIndex < length; cellIndex++) {
+                            callback(cell, cellIndex);
+                        }
                     };
 
                 return {

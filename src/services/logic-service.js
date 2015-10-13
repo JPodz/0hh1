@@ -37,19 +37,69 @@ define(
                         var incompleteRows = [];
 
                         // Loop over all rows in the logic board
-                        for (var row = 0, length = logicBoard.length; row < length; row++) {
+                        for (var rowIndex = 0, length = logicBoard.length; rowIndex < length; rowIndex++) {
 
                             // Loop over all cells in the current iterated row
-                            for (var cell = 0, length = logicBoard[row].length; cell < length; cell++) {
+                            for (var cellIndex = 0, length = logicBoard[rowIndex].length; cellIndex < length; cellIndex++) {
 
                                 // If the cell state if 'off' and the row hasn't already been added as incomplete, add
                                 // it to the list
-                                if (logicBoard[row][cell].state === possibleCellStates[0] && incompleteRows.indexOf(row) === -1) {
-                                    incompleteRows.push(row);
+                                if (logicBoard[rowIndex][cellIndex].state === possibleCellStates[0]) {
+                                    if (incompleteRows.indexOf(rowIndex) === -1) {
+                                        incompleteRows.push(rowIndex);
+                                    }
                                 }
                             }
                         }
                         return incompleteRows;
+                    },
+
+                    /**
+                     * Returns an array of all row indexes that contain an invalid number of equal blocks
+                     * 
+                     * @return {Number[]}
+                     */
+                    getInvalidMatchingRows = function () {
+                        var invalidRows = [],
+                            rowColors = {};
+
+                        // Loop over all rows in the logic board
+                        for (var rowIndex = 0, length = logicBoard.length; rowIndex < length; rowIndex++) {
+
+                            // Reset the row color counts
+                            for (var key in rowColors) {
+                                if (rowColors.hasOwnProperty(key)) {
+                                    rowColors[key] = 0;
+                                }
+                            }
+
+                            // Loop over all cells in the current iterated row and get a count of each of their states
+                            for (var cellIndex = 0, length = logicBoard[rowIndex].length; cellIndex < length; cellIndex++) {
+
+                                var state = logicBoard[rowIndex][cellIndex].state;
+                                if (!rowColors[state]) {
+                                    rowColors[state] = 0;
+                                }
+                                rowColors[state]++;
+                            }
+
+                            // Loop over the row color counts again. If each of their numbers match, then it is assumed
+                            // that they have at least the correct number of colors in each row. Note, we don't care
+                            // about empty cells in this case, because they'd get picked up by the invalid number of
+                            // selected cells error.
+                            var previousValue = undefined;
+                            for (var key in rowColors) {
+                                if (rowColors.hasOwnProperty(key)) {
+                                    if (previousValue && rowColors[key] !== previousValue) {
+                                        if (invalidRows.indexOf(rowIndex) === -1) {
+                                            invalidRows.push(rowIndex);
+                                        }
+                                    }
+                                    previousValue = rowColors[key];
+                                }
+                            }
+                        }
+                        return invalidRows;
                     };
 
                 return {
@@ -101,7 +151,8 @@ define(
                      */
                     getGameStatus: function () {
                         return {
-                            incompleteRows: getIncompleteRows()
+                            incompleteRows: getIncompleteRows(),
+                            invalidMatchingRows: getInvalidMatchingRows()
                         }
                     }
                 }

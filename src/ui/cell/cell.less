@@ -1,0 +1,20 @@
+.cell {
+
+    border: 1px solid #CCC;
+    height: 100%;
+
+    // Prevent cell highlighting. Maybe use autoprefixer?
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+
+    &.off { 
+        background-color: transparent;
+    }
+    &.oh {
+        background-color: blue;
+    }
+    &.hi {
+        background-color: red;
+    }
+}

@@ -46,6 +46,8 @@ define(
                         nextIndex = (currentIndex === possibleStates.length - 1) ? 0 : currentIndex + 1;
                     $scope.state = possibleStates[nextIndex];
                     logicService.setCellState($scope.state, $scope.cellRow, $scope.cellIndex);
+
+                    console.log(logicService.getGameStatus());
                 }
             }
         ]);

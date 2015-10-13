@@ -15,7 +15,42 @@ define(
                      * 
                      * @type {Array}
                      */
-                    logicBoard = [];
+                    logicBoard = [],
+
+                    /**
+                     * Possible cell states
+                     * 
+                     * @type {String[]}
+                     */
+                    possibleCellStates = [
+                        'off',
+                        'oh',
+                        'hi'
+                    ],
+
+                    /**
+                     * Returns an array of all incomplete row indexes in the logic board
+                     * 
+                     * @return {Number[]}
+                     */
+                    getIncompleteRows = function () {
+                        var incompleteRows = [];
+
+                        // Loop over all rows in the logic board
+                        for (var row = 0, length = logicBoard.length; row < length; row++) {
+
+                            // Loop over all cells in the current iterated row
+                            for (var cell = 0, length = logicBoard[row].length; cell < length; cell++) {
+
+                                // If the cell state if 'off' and the row hasn't already been added as incomplete, add
+                                // it to the list
+                                if (logicBoard[row][cell].state === possibleCellStates[0] && incompleteRows.indexOf(row) === -1) {
+                                    incompleteRows.push(row);
+                                }
+                            }
+                        }
+                        return incompleteRows;
+                    };
 
                 return {
 
@@ -25,12 +60,13 @@ define(
                      * @param   {Number}        size        The size of the board
                      */
                     setBoardSize: function (size) {
-                        var possibleCellStates = this.getPossibleCellStates();
                         for (var row = 0; row < size; row++) {
                             for (var cell = 0; cell < size; cell++) {
                                 if (!logicBoard[row]) {
                                     logicBoard[row] = [];
                                 }
+
+                                // Set the default status to 'off'
                                 logicBoard[row].push({
                                     state: possibleCellStates[0]
                                 });
@@ -44,11 +80,7 @@ define(
                      * @return {String[]}
                      */
                     getPossibleCellStates: function () {
-                        return [
-                            'off',
-                            'oh',
-                            'hi'
-                        ];
+                        return possibleCellStates;
                     },
 
                     /**
@@ -60,6 +92,17 @@ define(
                      */
                     setCellState: function (state, row, index) {
                         logicBoard[row][index].state = state;
+                    },
+
+                    /**
+                     * Returns the status of the board and any errors that are currently in display
+                     *
+                     * @return  {Object}
+                     */
+                    getGameStatus: function () {
+                        return {
+                            incompleteRows: getIncompleteRows()
+                        }
                     }
                 }
             }
